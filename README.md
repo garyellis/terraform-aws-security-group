@@ -1,16 +1,17 @@
 # tf_module_aws_security_group
 This module creates an aws security group and any needed security group rules. Its goal is to genericize security groups rule combinations and to limit hard coding rules in tf modules.
-This module supports the following functionality::
+This module provides:
 
 * toggle switch for ingress all protocols and ports from self
 * toggle switch for ingress all protocols from the internet (for development use)
 * toggle switch for egress all protocols and ports to self
 * toggle switch for egress all protocols and ports to the internet
-* create ingress source sg based rules from an input list of maps
 * create ingress source cidr based rules from an input list of maps
-* create egress sg based rules from an input list of maps
+* create ingress source sg based rules from an input list of maps
+* create ingress source self sg based rules from an input list of maps
 * create egress cidr based rules from ain input list of maps.
-
+* create egress sg based rules from an input list of maps
+* create egress to self sg based rules from an input list of maps
 
 ## Inputs
 
@@ -26,7 +27,7 @@ This module supports the following functionality::
 | name | the security group name | string | n/a | yes |
 | tags | A map of tags applied to the security group | map | `<map>` | no |
 | toggle\_allow\_all\_egress | helper toggle to allow all egress traffic. | string | `"0"` | no |
-| toggle\_allow\_all\_ingress | helper toggle to allow all ingress traffic. for development only | string | `"0"` | no |
+| toggle\_allow\_all\_ingress | helper toggle to allow all ingress traffic | string | `"0"` | no |
 | toggle\_self\_allow\_all\_egress | helper toggle to allow all egress traffic to self | string | `"0"` | no |
 | toggle\_self\_allow\_all\_ingress | helper toggle to allow all ingress traffic to self | string | `"0"` | no |
 | vpc\_id | the default security group id | string | n/a | yes |

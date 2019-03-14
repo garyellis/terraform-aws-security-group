@@ -61,7 +61,7 @@ variable "toggle_self_allow_all_ingress" {
 }
 
 variable "toggle_allow_all_ingress" {
-  description = "helper toggle to allow all ingress traffic. for development only"
+  description = "helper toggle to allow all ingress traffic"
   default     = "0"
   type        = "string"
 }
