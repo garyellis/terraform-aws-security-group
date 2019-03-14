@@ -6,9 +6,9 @@
 
 resource "aws_security_group" "security_group" {
   description = "${var.description}"
-  name   = "${var.name}"
-  vpc_id = "${var.vpc_id}"
-  tags   = "${merge(map("Name", var.name), var.tags)}"
+  name        = "${var.name}"
+  vpc_id      = "${var.vpc_id}"
+  tags        = "${merge(map("Name", var.name), var.tags)}"
 }
 
 resource "aws_security_group_rule" "toggle_self_allow_all_ingress" {
@@ -59,8 +59,33 @@ resource "aws_security_group_rule" "toggle_allow_all_egress" {
   cidr_blocks       = ["0.0.0.0/0"]
 }
 
+
+resource "aws_security_group_rule" "ingress_self_security_group" {
+  count                    = "${length(var.ingress_self_security_group_rules)}"
+
+  description              = "${lookup(var.ingress_self_security_group_rules[count.index], "desc")}"
+  type                     = "ingress"
+  from_port                = "${lookup(var.ingress_self_security_group_rules[count.index], "from_port")}"
+  to_port                  = "${lookup(var.ingress_self_security_group_rules[count.index], "to_port")}"
+  protocol                 = "${lookup(var.ingress_self_security_group_rules[count.index], "protocol")}"
+  security_group_id        = "${aws_security_group.security_group.id}"
+  self                     = "true"
+}
+
+resource "aws_security_group_rule" "egress_self_security_group" {
+  count                    = "${length(var.egress_self_security_group_rules)}"
+
+  description              = "${lookup(var.egress_self_security_group_rules[count.index], "desc")}"
+  type                     = "ingress"
+  from_port                = "${lookup(var.egress_self_security_group_rules[count.index], "from_port")}"
+  to_port                  = "${lookup(var.egress_self_security_group_rules[count.index], "to_port")}"
+  protocol                 = "${lookup(var.egress_self_security_group_rules[count.index], "protocol")}"
+  security_group_id        = "${aws_security_group.security_group.id}"
+  self                     = "true"
+}
+
 resource "aws_security_group_rule" "ingress_security_groups" {
-  count       = "${length(var.ingress_security_group_rules)}"
+  count                    = "${length(var.ingress_security_group_rules)}"
 
   description              = "${lookup(var.ingress_security_group_rules[count.index], "desc")}"
   type                     = "ingress"
@@ -72,7 +97,7 @@ resource "aws_security_group_rule" "ingress_security_groups" {
 }
 
 resource "aws_security_group_rule" "egress_security_groups" {
-  count       = "${length(var.egress_security_group_rules)}"
+  count                    = "${length(var.egress_security_group_rules)}"
 
   description              = "${lookup(var.egress_security_group_rules[count.index], "desc")}"
   type                     = "egress"
@@ -84,7 +109,7 @@ resource "aws_security_group_rule" "egress_security_groups" {
 }
 
 resource "aws_security_group_rule" "ingress_cidrs" {
-  count = "${length(var.ingress_cidr_rules)}"
+  count                    = "${length(var.ingress_cidr_rules)}"
 
   description              = "${lookup(var.ingress_cidr_rules[count.index], "desc")}"
   type                     = "ingress"
@@ -96,7 +121,7 @@ resource "aws_security_group_rule" "ingress_cidrs" {
 }
 
 resource "aws_security_group_rule" "egress_cidrs" {
-  count = "${length(var.egress_cidr_rules)}"
+  count                    = "${length(var.egress_cidr_rules)}"
 
   description              = "${lookup(var.egress_cidr_rules[count.index], "desc")}"
   type                     = "egress"

@@ -14,6 +14,12 @@ variable "egress_security_group_rules" {
   type = "list"
 }
 
+variable "egress_self_security_group_rules" {
+  description = "a list of egress rules for the security group to itself"
+  default = []
+  type = "list" 
+}
+
 variable "ingress_cidr_rules" {
   description = "a list of egress cidr rule maps"
   default = []
@@ -21,7 +27,13 @@ variable "ingress_cidr_rules" {
 }
 
 variable "ingress_security_group_rules" {
-  description = "a list of egress security group rule maps"
+  description = "a list of ingress security group rule maps"
+  default = []
+  type = "list"
+}
+
+variable "ingress_self_security_group_rules" {
+  description = "a list of ingress rules for the security group to itself"
   default = []
   type = "list"
 }
