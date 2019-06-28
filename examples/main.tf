@@ -40,17 +40,24 @@ locals {
 module "sg" {
   source = "../"
 
-  description                   = format("%s security group", var.name)
-  egress_cidr_rules             = []
-  egress_security_group_rules   = []
+  description                       = format("%s security group", var.name)
+  egress_cidr_rules                 = []
+  egress_security_group_rules       = []
   ingress_self_security_group_rules = local.self_security_group_rules
-  ingress_cidr_rules            = local.ingress_cidr_rules
-  ingress_security_group_rules  = []
-  name                          = var.name
-  tags                          = var.tags
-  toggle_allow_all_egress       = "0"
-  toggle_allow_all_ingress      = "0"
-  toggle_self_allow_all_egress  = "0"
-  toggle_self_allow_all_ingress = "0"
-  vpc_id                        = var.vpc_id
+  ingress_cidr_rules                = local.ingress_cidr_rules
+  ingress_security_group_rules      = []
+  name                              = var.name
+  tags                              = var.tags
+  toggle_allow_all_egress           = true
+  toggle_allow_all_ingress          = true
+  toggle_self_allow_all_egress      = false
+  toggle_self_allow_all_ingress     = false
+  toggle_allow_vpc_cidr_all_ingress = true
+  toggle_allow_vpc_cidr_all_egress  = true
+  toggle_allow_vpc_https_ingress    = true
+  toggle_allow_vpc_https_egress     = true
+  toggle_allow_vpc_http_ingress     = true
+  toggle_allow_vpc_http_egress      = true
+  
+  vpc_id                            = var.vpc_id
 }

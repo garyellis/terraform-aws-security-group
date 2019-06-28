@@ -50,29 +50,65 @@ variable "tags" {
 
 variable "toggle_self_allow_all_egress" {
   description = "helper toggle to allow all egress traffic to self"
-  type = string
-  default     = "0"
+  type = bool
+  default = false
 }
 
 variable "toggle_self_allow_all_ingress" {
   description = "helper toggle to allow all ingress traffic to self"
-  type = string
-  default     = "0"
+  type = bool
+  default = false
 }
 
 variable "toggle_allow_all_ingress" {
   description = "helper toggle to allow all ingress traffic"
-  type = string
-  default     = "0"
+  type = bool
+  default = false
 }
 
 variable "toggle_allow_all_egress" {
   description = "helper toggle to allow all egress traffic."
-  type = string
-  default     = "0"
+  type = bool
+  default = false
+}
+
+variable "toggle_allow_vpc_cidr_all_ingress" {
+  description = "helper toggle to allow all egress ports/protocls to the current vpc cidr"
+  type = bool
+  default = false
+}
+
+variable "toggle_allow_vpc_cidr_all_egress" {
+  description = "helper toggle to allow all egress ports/protocols to the current vpc cidr"
+  type = bool
+  default = false
+}
+
+variable "toggle_allow_vpc_https_ingress" {
+  description = "helper toggle to allow https ingress from the current vpc cidr"
+  type = bool
+  default = false
+}
+
+variable "toggle_allow_vpc_https_egress" {
+  description = "helper toggle to allow https egress to the current vpc cidr"
+  type = bool
+  default = false
+}
+
+variable "toggle_allow_vpc_http_ingress" {
+  description = "helper toggle to allow http ingress from the current vpc cidr"
+  type = bool
+  default = false
+}
+
+variable "toggle_allow_vpc_http_egress" {
+  description = "helper toggle to allow http egress to the current vpc cidr"
+  type = bool
+  default = false
 }
 
 variable "vpc_id" {
-  description = "the default security group id"
+  description = "the current vpc id"
   type = string
 }

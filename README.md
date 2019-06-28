@@ -1,17 +1,24 @@
 # tf_module_aws_security_group
-This module creates an aws security group and any needed security group rules. Its goal is to genericize security groups rule combinations and to limit hard coding rules in tf modules.
-This module provides:
+This module creates an aws security group and rules. It aims to manage security groups rule combinations consistently.
+The following resources and configuration are provided:
 
+* an aws security group
+* ingress source cidr based rules inputs
+* ingress source sg based rules inputs 
+* ingress source self sg based rules
+* egress cidr based rules input
+* egress sg based rules input
+* egress to self sg based rules input
 * toggle switch for ingress all protocols and ports from self
-* toggle switch for ingress all protocols from the internet (for development use)
+* toggle switch for ingress all protocols from the internet (i.e. for debugging)
 * toggle switch for egress all protocols and ports to self
-* toggle switch for egress all protocols and ports to the internet
-* create ingress source cidr based rules from an input list of maps
-* create ingress source sg based rules from an input list of maps
-* create ingress source self sg based rules from an input list of maps
-* create egress cidr based rules from ain input list of maps.
-* create egress sg based rules from an input list of maps
-* create egress to self sg based rules from an input list of maps
+* toggle switch for egress all protocols and ports to the internet (i.e. for debugging)
+* toggle switch for ingress all protocols from the current vpc cidr
+* toggle switch for egress all protocols to the current vpc cidr
+* toggle switch for ingress http from the current vpc cidr
+* toggle switch for egress to the current vpc cidr
+* toggle switch for ingress https from the current vpc cidr
+* toggle switch for egress https to the current vpc cidr
 
 ## Terraform version
 
@@ -29,12 +36,18 @@ This module provides:
 | ingress\_security\_group\_rules | a list of ingress security group rule maps | `list(map(string))` | `[]` | no |
 | ingress\_self\_security\_group\_rules | a list of ingress rules for the security group to itself | `list(map(string))` | `[]` | no |
 | name | the security group name | `string` | n/a | yes |
-| tags | A map of tags applied to the security group | `map(string)` | `{}` | no |
-| toggle\_allow\_all\_egress | helper toggle to allow all egress traffic. | `string` | `"0"` | no |
-| toggle\_allow\_all\_ingress | helper toggle to allow all ingress traffic | `string` | `"0"` | no |
-| toggle\_self\_allow\_all\_egress | helper toggle to allow all egress traffic to self | `string` | `"0"` | no |
-| toggle\_self\_allow\_all\_ingress | helper toggle to allow all ingress traffic to self | `string` | `"0"` | no |
-| vpc\_id | the default security group id | `string` | n/a | yes |
+| tags | a map of tags applied to the security group | `map(string)` | `{}` | no |
+| toggle\_allow\_all\_egress | helper toggle to allow all egress traffic. | `bool` | `false` | no |
+| toggle\_allow\_all\_ingress | helper toggle to allow all ingress traffic | `bool` | `false` | no |
+| toggle\_self\_allow\_all\_egress | helper toggle to allow all egress traffic to self | `bool` | `false` | no |
+| toggle\_self\_allow\_all\_ingress | helper toggle to allow all ingress traffic to self | `bool` | `false` | no |
+| toggle\_allow\_vpc\_cidr\_all\_ingress | helper toggle to allow all egress ports/protocls to the current vpc cidr | `bool` | `false` | no |
+| toggle\_allow\_vpc\_cidr\_all_egress | helper toggle to allow all egress ports/protocols to the current vpc cidr | `bool` | `false` | no |
+| toggle\_allow\_vpc\_https\_ingress | helper toggle to allow https ingress from the current vpc cidr | `bool` | `false` | no |
+| toggle\_allow\_vpc\_https\_egress | helper toggle to allow https egress to the current vpc cidr | `bool` | `false` | no |
+| toggle\_allow\_vpc\_http\_ingress | helper toggle to allow http egress to the current vpc cidr | `bool` | `false` | no |
+| toggle\_allow\_vpc\_http\_egress | helper toggle to allow http egress to the current vpc cidr | `bool` | `false` | no |
+| vpc\_id | the current vpc id | `string` | n/a | yes |
 
 ## Outputs
 
@@ -83,20 +96,27 @@ locals {
 }
 
 module "sg" {
-  source = "../"
+  source = "github.com/garyellis/tf_module_aws_security_group"
 
-  description                   = format("%s security group", var.name)
-  egress_cidr_rules             = []
-  egress_security_group_rules   = []
+  description                       = format("%s security group", var.name)
+  egress_cidr_rules                 = []
+  egress_security_group_rules       = []
   ingress_self_security_group_rules = local.self_security_group_rules
-  ingress_cidr_rules            = local.ingress_cidr_rules
-  ingress_security_group_rules  = []
-  name                          = var.name
-  tags                          = var.tags
-  toggle_allow_all_egress       = "0"
-  toggle_allow_all_ingress      = "0"
-  toggle_self_allow_all_egress  = "0"
-  toggle_self_allow_all_ingress = "0"
-  vpc_id                        = var.vpc_id
+  ingress_cidr_rules                = local.ingress_cidr_rules
+  ingress_security_group_rules      = []
+  name                              = var.name
+  tags                              = var.tags
+  toggle_allow_all_egress           = true
+  toggle_allow_all_ingress          = true
+  toggle_self_allow_all_egress      = false
+  toggle_self_allow_all_ingress     = false
+  toggle_allow_vpc_cidr_all_ingress = true
+  toggle_allow_vpc_cidr_all_egress  = true
+  toggle_allow_vpc_https_ingress    = true
+  toggle_allow_vpc_https_egress     = true
+  toggle_allow_vpc_http_ingress     = true
+  toggle_allow_vpc_http_egress      = true
+
+  vpc_id                            = var.vpc_id
 }
 ```
