@@ -156,7 +156,7 @@ resource "aws_security_group_rule" "egress_self_security_group" {
   count                    = length(var.egress_self_security_group_rules)
 
   description              = lookup(var.egress_self_security_group_rules[count.index], "desc")
-  type                     = "ingress"
+  type                     = "egress"
   from_port                = lookup(var.egress_self_security_group_rules[count.index], "from_port")
   to_port                  = lookup(var.egress_self_security_group_rules[count.index], "to_port")
   protocol                 = lookup(var.egress_self_security_group_rules[count.index], "protocol")
