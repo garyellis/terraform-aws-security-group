@@ -1,10 +1,19 @@
+variable "create_security_group" {
+  description = "create the security group"
+  type = bool
+  default = true
+}
+
 variable "description" {
   description = "the security group description"
+  type = string
+  default = ""
 }
 
 variable "egress_cidr_rules" {
   description = "a list of egress cidr rule maps"
   type = list(map(string))
+  default = []
 }
 
 variable "egress_security_group_rules" {
@@ -31,15 +40,16 @@ variable "ingress_security_group_rules" {
   default = []
 }
 
-variable "ingress_self_security_group_rules" {
-  description = "a list of ingress rules for the security group to itself"
+variable "self_security_group_rules" {
+  description = "a list of rules for the security group to itself"
   type = list(map(string))
   default = []
 }
 
 variable "name" {
-  description = "the security group name"
+  description = "the security group name (required when creating security group)"
   type = string
+  default = ""
 }
 
 variable "tags" {
@@ -64,6 +74,12 @@ variable "toggle_allow_all_ingress" {
   description = "helper toggle to allow all ingress traffic"
   type = bool
   default = false
+}
+
+variable "security_group_id" {
+  description = "apply rules on an existing security group id"
+  type = string
+  default = ""
 }
 
 variable "toggle_allow_all_egress" {

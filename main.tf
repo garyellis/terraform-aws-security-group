@@ -1,14 +1,22 @@
 # todo
-# add more security group rule helper shortcuts. i.e. more common services, vpc cidr ports list, subnet cidr ports list
+# - add more security group rule helper shortcuts. i.e. more common services, vpc cidr ports list, subnet cidr ports list
+# - support configuration on existing security group. flag go disable security group creation and existing security group id parameter
+
+
 data "aws_vpc" "current" {
   id = var.vpc_id
 }
 
 resource "aws_security_group" "security_group" {
+  count = var.create_security_group ? 1 : 0
   description = var.description
   name        = var.name
   vpc_id      = var.vpc_id
   tags        = merge(map("Name", var.name), var.tags)
+}
+
+locals {
+  security_group_id = var.security_group_id == "" ? join("", aws_security_group.security_group.*.id) : var.security_group_id
 }
 
 # security group all self helper rules
@@ -19,7 +27,7 @@ resource "aws_security_group_rule" "toggle_self_allow_all_ingress" {
   from_port         = 0
   to_port           = 0
   protocol          = "-1"
-  security_group_id = aws_security_group.security_group.id
+  security_group_id = local.security_group_id
   self              = "true"
   type              = "ingress"
 }
@@ -31,7 +39,7 @@ resource "aws_security_group_rule"  "toggle_self_allow_all_egress" {
   from_port         = 0
   to_port           = 0
   protocol          = "-1"
-  security_group_id = aws_security_group.security_group.id
+  security_group_id = local.security_group_id
   self              = "true"
   type              = "egress"
 }
@@ -44,7 +52,7 @@ resource "aws_security_group_rule" "toggle_allow_all_ingress" {
   from_port         = 0
   to_port           = 0
   protocol          = "-1"
-  security_group_id = aws_security_group.security_group.id
+  security_group_id = local.security_group_id
   type              = "ingress"
   cidr_blocks       = ["0.0.0.0/0"]
 }
@@ -56,7 +64,7 @@ resource "aws_security_group_rule" "toggle_allow_all_egress" {
   from_port         = 0
   to_port           = 0
   protocol          = "-1"
-  security_group_id = aws_security_group.security_group.id
+  security_group_id = local.security_group_id
   type              = "egress"
   cidr_blocks       = ["0.0.0.0/0"]
 }
@@ -70,7 +78,7 @@ resource "aws_security_group_rule" "toggle_allow_all_vpc_cidr_ingress" {
   to_port           = 0
   protocol          = "-1"
   type              = "ingress"
-  security_group_id = aws_security_group.security_group.id
+  security_group_id = local.security_group_id
   cidr_blocks       = [data.aws_vpc.current.cidr_block]
 }
 
@@ -81,7 +89,7 @@ resource "aws_security_group_rule" "toggle_allow_all_vpc_cidr_egress" {
   from_port         = 0
   to_port           = 0
   protocol          = "-1"
-  security_group_id = aws_security_group.security_group.id
+  security_group_id = local.security_group_id
   type              = "egress"
   cidr_blocks       = [data.aws_vpc.current.cidr_block]
 }
@@ -94,7 +102,7 @@ resource "aws_security_group_rule" "toggle_allow_https_vpc_cidr_ingress" {
   from_port         = 443
   to_port           = 443
   protocol          = "tcp"
-  security_group_id = aws_security_group.security_group.id
+  security_group_id = local.security_group_id
   type              = "ingress"
   cidr_blocks       = [data.aws_vpc.current.cidr_block]
 
@@ -107,7 +115,7 @@ resource "aws_security_group_rule" "toggle_allow_https_vpc_cidr_egress" {
   from_port         = 443
   to_port           = 443
   protocol          = "tcp"
-  security_group_id = aws_security_group.security_group.id
+  security_group_id = local.security_group_id
   type              = "egress"
   cidr_blocks       = [data.aws_vpc.current.cidr_block]
 }
@@ -120,7 +128,7 @@ resource "aws_security_group_rule" "toggle_allow_http_vpc_cidr_ingress" {
   from_port         = 80
   to_port           = 80
   protocol          = "tcp"
-  security_group_id = aws_security_group.security_group.id
+  security_group_id = local.security_group_id
   type              = "ingress"
   cidr_blocks       = [data.aws_vpc.current.cidr_block]
 
@@ -133,7 +141,7 @@ resource "aws_security_group_rule" "toggle_allow_http_vpc_cidr_egress" {
   from_port         = 80
   to_port           = 80
   protocol          = "tcp"
-  security_group_id = aws_security_group.security_group.id
+  security_group_id = local.security_group_id
   type              = "egress"
   cidr_blocks       = [data.aws_vpc.current.cidr_block]
 }
@@ -141,26 +149,26 @@ resource "aws_security_group_rule" "toggle_allow_http_vpc_cidr_egress" {
 
 # user defined rules
 resource "aws_security_group_rule" "ingress_self_security_group" {
-  count                    = length(var.ingress_self_security_group_rules)
+  count                    = length(var.self_security_group_rules)
 
-  description              = lookup(var.ingress_self_security_group_rules[count.index], "desc")
+  description              = lookup(var.self_security_group_rules[count.index], "desc")
   type                     = "ingress"
-  from_port                = lookup(var.ingress_self_security_group_rules[count.index], "from_port")
-  to_port                  = lookup(var.ingress_self_security_group_rules[count.index], "to_port")
-  protocol                 = lookup(var.ingress_self_security_group_rules[count.index], "protocol")
-  security_group_id        = aws_security_group.security_group.id
+  from_port                = lookup(var.self_security_group_rules[count.index], "from_port")
+  to_port                  = lookup(var.self_security_group_rules[count.index], "to_port")
+  protocol                 = lookup(var.self_security_group_rules[count.index], "protocol")
+  security_group_id        = local.security_group_id
   self                     = "true"
 }
 
 resource "aws_security_group_rule" "egress_self_security_group" {
-  count                    = length(var.egress_self_security_group_rules)
+  count                    = length(var.self_security_group_rules)
 
-  description              = lookup(var.egress_self_security_group_rules[count.index], "desc")
+  description              = lookup(var.self_security_group_rules[count.index], "desc")
   type                     = "egress"
-  from_port                = lookup(var.egress_self_security_group_rules[count.index], "from_port")
-  to_port                  = lookup(var.egress_self_security_group_rules[count.index], "to_port")
-  protocol                 = lookup(var.egress_self_security_group_rules[count.index], "protocol")
-  security_group_id        = aws_security_group.security_group.id
+  from_port                = lookup(var.self_security_group_rules[count.index], "from_port")
+  to_port                  = lookup(var.self_security_group_rules[count.index], "to_port")
+  protocol                 = lookup(var.self_security_group_rules[count.index], "protocol")
+  security_group_id        = local.security_group_id
   self                     = "true"
 }
 
@@ -172,7 +180,7 @@ resource "aws_security_group_rule" "ingress_security_groups" {
   from_port                = lookup(var.ingress_security_group_rules[count.index], "from_port")
   to_port                  = lookup(var.ingress_security_group_rules[count.index], "to_port")
   protocol                 = lookup(var.ingress_security_group_rules[count.index], "protocol")
-  security_group_id        = aws_security_group.security_group.id
+  security_group_id        = local.security_group_id
   source_security_group_id = lookup(var.ingress_security_group_rules[count.index], "source_security_group_id")
 }
 
@@ -184,7 +192,7 @@ resource "aws_security_group_rule" "egress_security_groups" {
   from_port                = lookup(var.egress_security_group_rules[count.index], "from_port")
   to_port                  = lookup(var.egress_security_group_rules[count.index], "to_port")
   protocol                 = lookup(var.egress_security_group_rules[count.index], "protocol")
-  security_group_id        = aws_security_group.security_group.id
+  security_group_id        = local.security_group_id
   source_security_group_id = lookup(var.egress_security_group_rules[count.index], "source_security_group_id")
 }
 
@@ -197,7 +205,7 @@ resource "aws_security_group_rule" "ingress_cidrs" {
   to_port                  = lookup(var.ingress_cidr_rules[count.index], "to_port")
   protocol                 = lookup(var.ingress_cidr_rules[count.index], "protocol")
   cidr_blocks              = split(",",lookup(var.ingress_cidr_rules[count.index], "cidr_blocks"))
-  security_group_id        = aws_security_group.security_group.id
+  security_group_id        = local.security_group_id
 }
 
 resource "aws_security_group_rule" "egress_cidrs" {
@@ -209,5 +217,5 @@ resource "aws_security_group_rule" "egress_cidrs" {
   to_port                  = lookup(var.egress_cidr_rules[count.index], "to_port")
   protocol                 = lookup(var.egress_cidr_rules[count.index], "protocol")
   cidr_blocks              = split(",",lookup(var.egress_cidr_rules[count.index], "cidr_blocks"))
-  security_group_id        = aws_security_group.security_group.id
+  security_group_id        = local.security_group_id
 }

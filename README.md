@@ -2,13 +2,12 @@
 This module creates an aws security group and rules. It aims to manage security groups rule combinations consistently.
 The following resources and configuration are provided:
 
-* an aws security group
+* create an aws security group or work on an existing security group id
 * ingress source cidr based rules inputs
 * ingress source sg based rules inputs 
-* ingress source self sg based rules
+* self sg rules input
 * egress cidr based rules input
 * egress sg based rules input
-* egress to self sg based rules input
 * toggle switch for ingress all protocols and ports from self
 * toggle switch for ingress all protocols from the internet (i.e. for debugging)
 * toggle switch for egress all protocols and ports to self
@@ -28,14 +27,15 @@ The following resources and configuration are provided:
 
 | Name | Description | Type | Default | Required |
 |------|-------------|:----:|:-----:|:-----:|
-| description | the security group description | `string` | n/a | yes |
+| create\_security\_group | create the security group. set to false when working on an existing security group | `bool` | `true` | no |
+| description | the security group description | `string` | "" | yes when creating security group |
+| security\_group\_id | apply rules on an existing security group id | `string` | "" | no |
+| self\_security\_group\_rules | a list of rules for the security group to itself | `list(map(string))` | `[]` | no |
 | egress\_cidr\_rules | a list of egress cidr rule maps | `list(map(string))` | `[]` | no |
 | egress\_security\_group\_rules | a list of egress security group id rule maps | `list(map(string))` | `[]` | no |
-| egress\_self\_security\_group\_rules | a list of egress rules for the security group to itself | `list` | `[]` | no |
 | ingress\_cidr\_rules | a list of egress cidr rule maps | `list(map(string))` | `[]` | no |
 | ingress\_security\_group\_rules | a list of ingress security group rule maps | `list(map(string))` | `[]` | no |
-| ingress\_self\_security\_group\_rules | a list of ingress rules for the security group to itself | `list(map(string))` | `[]` | no |
-| name | the security group name | `string` | n/a | yes |
+| name | the security group name | `string` | n/a | yes when creating security group |
 | tags | a map of tags applied to the security group | `map(string)` | `{}` | no |
 | toggle\_allow\_all\_egress | helper toggle to allow all egress traffic. | `bool` | `false` | no |
 | toggle\_allow\_all\_ingress | helper toggle to allow all ingress traffic | `bool` | `false` | no |
@@ -101,7 +101,7 @@ module "sg" {
   description                       = format("%s security group", var.name)
   egress_cidr_rules                 = []
   egress_security_group_rules       = []
-  ingress_self_security_group_rules = local.self_security_group_rules
+  self_security_group_rules         = local.self_security_group_rules
   ingress_cidr_rules                = local.ingress_cidr_rules
   ingress_security_group_rules      = []
   name                              = var.name
