@@ -196,6 +196,18 @@ resource "aws_security_group_rule" "egress_security_groups" {
   source_security_group_id = lookup(var.egress_security_group_rules[count.index], "source_security_group_id")
 }
 
+resource "aws_security_group_rule" "egress_prefix_ids" {
+  count                    = length(var.egress_prefix_id_rules)
+
+  description              = lookup(var.egress_prefix_id_rules[count.index], "desc")
+  type                     = "egress"
+  from_port                = lookup(var.egress_prefix_id_rules[count.index], "from_port")
+  to_port                  = lookup(var.egress_prefix_id_rules[count.index], "to_port")
+  protocol                 = lookup(var.egress_prefix_id_rules[count.index], "protocol")
+  security_group_id        = local.security_group_id
+  prefix_list_ids          = split(",",lookup(var.egress_prefix_id_rules[count.index], "prefix_list_ids"))
+}
+
 resource "aws_security_group_rule" "ingress_cidrs" {
   count                    = length(var.ingress_cidr_rules)
 

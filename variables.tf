@@ -22,6 +22,12 @@ variable "egress_security_group_rules" {
   default = []
 }
 
+variable "egress_prefix_id_rules" {
+  description = "a list of vpc gateway endpoint prefix ids"
+  type        = list(map(string))
+  default     = []
+}
+
 variable "egress_self_security_group_rules" {
   description = "a list of egress rules for the security group to itself"
   type = list(map(string))
