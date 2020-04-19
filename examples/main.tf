@@ -105,3 +105,7 @@ module "sg_to_pretend_existing_sg_ingress" {
   ingress_security_group_rules = [{ desc = "ingess from pretend-existing-sg",  from_port = "443", to_port = "443", protocol = "tcp", source_security_group_id = module.sg.security_group_id}]
   vpc_id                      = var.vpc_id
 }
+
+output "security_group_rule_ids" {
+  value = module.sg.security_group_rule_ids
+}
